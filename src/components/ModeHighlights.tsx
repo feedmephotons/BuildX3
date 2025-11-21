@@ -75,7 +75,7 @@ export function ModeHighlights() {
       >
         <p>Trigger with ⌘/Ctrl + K. Search, run automations, open views, and ask Gemini for next steps.</p>
         <p className="rounded-lg border border-shell-border bg-slate-50 p-3 text-sm text-slate-800">
-          Example: "Reassign weather-risk jobs" → opens dispatch with AI suggestions and pre-filtered conflicts.
+          Example: &quot;Reassign weather-risk jobs&quot; → opens dispatch with AI suggestions and pre-filtered conflicts.
         </p>
       </Modal>
 

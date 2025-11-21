@@ -63,7 +63,7 @@ export function SEOBoard() {
         footer={<button className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white">Save to board</button>}
       >
         <ul className="space-y-2 text-sm text-slate-800">
-          <li className="rounded-lg border border-shell-border bg-slate-50 p-3">Keyword: "roof leak after hail" · Volume 9.8k · Difficulty 28</li>
+          <li className="rounded-lg border border-shell-border bg-slate-50 p-3">Keyword: &quot;roof leak after hail&quot; · Volume 9.8k · Difficulty 28</li>
           <li className="rounded-lg border border-shell-border bg-slate-50 p-3">Outline with CTAs, FAQs, and schema suggestions.</li>
           <li className="rounded-lg border border-shell-border bg-slate-50 p-3">Auto-create draft in Drafting column.</li>
         </ul>
@@ -71,8 +71,3 @@ export function SEOBoard() {
     </section>
   );
 }
-"use client";
-
-import { useState } from "react";
-
-import { Modal } from "./Modal";
