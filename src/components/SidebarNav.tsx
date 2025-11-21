@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -149,9 +149,27 @@ const NAV_ITEMS: NavItem[] = [
 export function SidebarNav() {
   const pathname = usePathname();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [flyoutTop, setFlyoutTop] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = (itemId: string, buttonElement: HTMLButtonElement) => {
+    setHoveredItem(itemId);
+
+    // Calculate position relative to container
+    if (containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const buttonRect = buttonElement.getBoundingClientRect();
+      const relativeTop = buttonRect.top - containerRect.top;
+      setFlyoutTop(relativeTop);
+    }
+  };
 
   return (
-    <div className="flex h-full relative z-50" onMouseLeave={() => setHoveredItem(null)}>
+    <div
+      ref={containerRef}
+      className="flex h-full relative z-50"
+      onMouseLeave={() => setHoveredItem(null)}
+    >
       {/* The Rail */}
       <nav className="w-20 bg-white border-r border-shell-border flex flex-col items-center py-6 z-20 relative">
         <div className="mb-8 w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -166,7 +184,7 @@ export function SidebarNav() {
             return (
               <button
                 key={item.id}
-                onMouseEnter={() => setHoveredItem(item.id)}
+                onMouseEnter={(e) => handleMouseEnter(item.id, e.currentTarget)}
                 className={`w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 relative group
                   ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
               >
@@ -209,7 +227,7 @@ export function SidebarNav() {
         </div>
       </nav>
 
-      {/* The Mega Menu Flyout */}
+      {/* The Mega Menu Flyout - positioned relative to hovered item */}
       <AnimatePresence>
         {hoveredItem && NAV_ITEMS.find((i) => i.id === hoveredItem)?.subItems && (
           <motion.div
@@ -221,11 +239,14 @@ export function SidebarNav() {
               ease: [0.32, 0.72, 0, 1],
               opacity: { duration: 0.15 },
             }}
-            className="h-full w-80 bg-white/98 backdrop-blur-xl border-r border-shell-border z-10 overflow-hidden shadow-2xl origin-left"
+            style={{
+              top: Math.max(0, Math.min(flyoutTop, (containerRef.current?.clientHeight || 600) - 400)),
+            }}
+            className="absolute left-20 w-80 bg-white/98 backdrop-blur-xl border border-shell-border rounded-2xl z-10 overflow-hidden shadow-2xl origin-left"
           >
-            <div className="p-6 h-full flex flex-col">
+            <div className="p-5">
               {/* Header */}
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
                 {(() => {
                   const activeItem = NAV_ITEMS.find((i) => i.id === hoveredItem);
                   if (!activeItem) return null;
@@ -237,18 +258,18 @@ export function SidebarNav() {
                         transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
                         className={`p-2.5 rounded-xl ${activeItem.bgColor}`}
                       >
-                        <activeItem.icon className={`w-6 h-6 ${activeItem.color}`} />
+                        <activeItem.icon className={`w-5 h-5 ${activeItem.color}`} />
                       </motion.div>
                       <div>
                         <motion.h2
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: 0.05 }}
-                          className="text-lg font-bold text-slate-900"
+                          className="text-base font-bold text-slate-900"
                         >
                           {activeItem.label}
                         </motion.h2>
-                        <p className="text-xs text-slate-500">Navigate to modules</p>
+                        <p className="text-[11px] text-slate-500">Navigate to modules</p>
                       </div>
                     </>
                   );
@@ -256,7 +277,7 @@ export function SidebarNav() {
               </div>
 
               {/* Sub Items */}
-              <div className="space-y-2 flex-1">
+              <div className="space-y-2">
                 {NAV_ITEMS.find((i) => i.id === hoveredItem)?.subItems?.map((sub, index) => {
                   const parentItem = NAV_ITEMS.find((i) => i.id === hoveredItem);
                   return (
@@ -273,7 +294,7 @@ export function SidebarNav() {
                       <Link
                         href={sub.href}
                         onClick={() => setHoveredItem(null)}
-                        className={`group w-full p-3.5 rounded-xl border transition-all duration-150 ease-out flex items-start gap-3.5
+                        className={`group w-full p-3 rounded-xl border transition-all duration-150 ease-out flex items-start gap-3
                           hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]
                           bg-slate-50 border-slate-100 hover:border-slate-300 hover:bg-white`}
                       >
@@ -287,7 +308,7 @@ export function SidebarNav() {
                           <div className="font-semibold text-slate-900 group-hover:text-slate-900 text-sm">
                             {sub.label}
                           </div>
-                          <div className="text-xs text-slate-500 mt-0.5 truncate">{sub.description}</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5 truncate">{sub.description}</div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-150 mt-1" />
                       </Link>
@@ -301,14 +322,14 @@ export function SidebarNav() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2, delay: 0.15 }}
-                className="mt-auto pt-4"
+                className="mt-4 pt-4 border-t border-slate-100"
               >
-                <div className="p-4 rounded-xl bg-gradient-to-r from-accent-500/10 to-accent-600/10 border border-accent-500/20">
-                  <div className="flex items-center gap-2 text-accent-600 mb-2">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wide">AI Insight</span>
+                <div className="p-3 rounded-xl bg-gradient-to-r from-accent-500/10 to-accent-600/10 border border-accent-500/20">
+                  <div className="flex items-center gap-2 text-accent-600 mb-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wide">AI Insight</span>
                   </div>
-                  <p className="text-xs text-slate-600 mb-3">
+                  <p className="text-[11px] text-slate-600 mb-2">
                     {hoveredItem === "sell" && "3 hot leads need follow-up today"}
                     {hoveredItem === "build" && "2 jobs at weather risk this week"}
                     {hoveredItem === "bill" && "$8.2k in overdue invoices"}
@@ -317,7 +338,7 @@ export function SidebarNav() {
                     {hoveredItem === "digital" && "Website traffic up 24%"}
                     {hoveredItem === "admin" && "All systems operational"}
                   </p>
-                  <button className="w-full py-2 bg-white rounded-lg text-xs font-semibold text-accent-600 shadow-sm border border-accent-500/20 hover:bg-accent-50 transition-colors">
+                  <button className="w-full py-1.5 bg-white rounded-lg text-[11px] font-semibold text-accent-600 shadow-sm border border-accent-500/20 hover:bg-accent-50 transition-colors">
                     View Details
                   </button>
                 </div>
