@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-shell-surface text-slate-900 antialiased;
+}
+
+a {
+  @apply text-accent-600 hover:text-accent-500 transition-colors;
+}
+
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.accent.500") theme("colors.shell.surface");
+}
+
+.scroll-area::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+  background-color: theme("colors.accent.500");
+  border-radius: 9999px;
+}
+
+.card {
+  @apply rounded-2xl bg-white shadow-card border border-shell-border;
+}
+
+.chip {
+  @apply inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700;
+}
+
+.badge-dot {
+  @apply inline-block h-2 w-2 rounded-full bg-accent-500;
+}
+
+.surface-muted {
+  @apply bg-slate-100 text-slate-600;
+}
